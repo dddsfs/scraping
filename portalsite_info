@@ -1,0 +1,80 @@
+import sys
+
+import time
+from selenium.webdriver import Chrome, ChromeOptions, Remote
+
+#トークンを指定します
+LINE_TOKEN = "LINE_TOKEN"
+LINE_NOTIFY_URL = 'LINE_NOTIFY_URL'
+
+
+def main():
+
+    options = ChromeOptions()
+    webdriver = Chrome(options=options)
+
+    logging(webdriver)
+
+    time.sleep(3)
+
+    contents = scrape_contents_list(webdriver)
+
+    send_to_line(contents)
+
+
+
+
+def logging(webdriver):
+
+    webdriver.get('サイトURL')
+
+    webdriver.find_element_by_xpath('//*[@id="userId"]').send_keys("ユーザー名")
+    webdriver.find_element_by_xpath('//*[@id="password"]').send_keys("パスワード")
+
+    time.sleep(3)
+
+    webdriver.find_element_by_xpath('//*[@id="loginButton"]').click()
+
+
+def scrape_contents_list(webdriver):
+
+    contents=[]
+    for details in webdriver.find_elements_by_css_selector('セレクター'):
+        date1 = details.find_element_by_css_selector('div.date').text
+        title1 = details.find_element_by_css_selector('div.text').text
+    for details in webdriver.find_elements_by_css_selector('セレクター'):
+        date2 = details.find_element_by_css_selector('div.date').text
+        title2 = details.find_element_by_css_selector('div.text').text
+    for details in webdriver.find_elements_by_css_selector('セレクター'):
+        date3 = details.find_element_by_css_selector('div.date').text
+        title3 = details.find_element_by_css_selector('div.text').text
+    for details in webdriver.find_elements_by_css_selector('セレクター'):
+        date4 = details.find_element_by_css_selector('div.date').text
+        title4 = details.find_element_by_css_selector('div.text').text
+    for details in webdriver.find_elements_by_css_selector('セレクター'):
+        date5 = details.find_element_by_css_selector('div.date').text
+        title5 = details.find_element_by_css_selector('div.text').text
+    contents.append([date1,title1,date2,title2,date3,title3,date4,title4,date5,title5])
+
+    return contents   
+
+
+
+def send_to_line(contents):
+    method = "POST"
+    headers = {"Authorization": "Bearer %s" % LINE_TOKEN}
+    payload = {"message": contents}
+    try:
+        payload = urllib.parse.urlencode(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url=LINE_NOTIFY_URL, data=payload, method=method, headers=headers)
+        urllib.request.urlopen(req)
+    except Exception as e:
+        print ("Exception Error: ", e)
+        sys.exit(1)
+
+
+
+
+if __name__ == '__main__':
+    main()    
